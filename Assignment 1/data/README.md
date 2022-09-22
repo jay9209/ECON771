@@ -1,5 +1,3 @@
-# ECON771 Health Economics 2 Fall 2022
-
 All these data are from following repositories
 - [HCRIS](https://github.com/imccart/HCRIS)
 - [Medicaid](https://github.com/imccart/Insurance-Access)
