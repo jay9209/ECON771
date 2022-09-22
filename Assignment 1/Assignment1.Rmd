@@ -1,0 +1,14 @@
+---
+title: "Assignment1"
+author: "Jung Jae Kim"
+date: "2022-09-22"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. 
