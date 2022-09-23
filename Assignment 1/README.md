@@ -3,4 +3,4 @@ All datasets used in the code can be obtained from following repositories
 - [Medicaid](https://github.com/imccart/Insurance-Access)
 - [POS](https://github.com/imccart/cms-pos)
 
-The final document with main answers is Assignment1.md
+The final document with main answers is Assignment1.pdf
