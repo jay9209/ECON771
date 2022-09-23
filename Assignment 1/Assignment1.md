@@ -424,22 +424,22 @@ result_CS_event
 
     Overall summary of ATT's based on event-study/dynamic aggregation:  
          ATT    Std. Error     [ 95%  Conf. Int.]  
-     -23.332        4.2019   -31.5676    -15.0964 *
+     -23.332        4.3822    -31.921    -14.7431 *
 
 
     Dynamic Effects:
      Event time Estimate Std. Error [95% Simult.  Conf. Band]  
-             -5   2.9710     3.4567       -5.9495     11.8914  
-             -4   0.3875     2.4631       -5.9690      6.7440  
-             -3   3.4720     2.0988       -1.9442      8.8882  
-             -2   0.8815     1.6247       -3.3114      5.0744  
+             -5   2.9710     3.5871       -6.3170     12.2590  
+             -4   0.3875     2.4600       -5.9821      6.7571  
+             -3   3.4720     1.9890       -1.6781      8.6221  
+             -2   0.8815     1.6633       -3.4251      5.1881  
              -1   0.0000         NA            NA          NA  
-              0 -11.3077     1.6583      -15.5873     -7.0281 *
-              1   0.9236    26.1501      -66.5607     68.4079  
-              2 -24.7646     2.1784      -30.3864    -19.1428 *
-              3 -30.1446     2.6223      -36.9119    -23.3773 *
-              4 -30.0599     4.5330      -41.7579    -18.3619 *
-              5 -44.6390     5.5542      -58.9725    -30.3055 *
+              0 -11.3077     1.7639      -15.8749     -6.7405 *
+              1   0.9236    26.0367      -66.4919     68.3391  
+              2 -24.7646     2.2379      -30.5590    -18.9702 *
+              3 -30.1446     2.6798      -37.0833    -23.2059 *
+              4 -30.0599     4.2059      -40.9499    -19.1698 *
+              5 -44.6390     5.6828      -59.3533    -29.9247 *
     ---
     Signif. codes: `*' confidence band does not cover 0
 
@@ -458,23 +458,17 @@ ggdid(result_CS_event)
     of an assumed violation in parallel trends. One such bound RR
     propose is to limit the post-treatment violation of parallel trends
     to be no worse than some multiple of the pre-treatment violation of
-    parallel trends. Assuming linear trends, such a relative violation
-    is reflected by
-    $$\Delta(\bar{M}) = \left\{ \delta : \forall t \geq 0, \lvert (\delta_{t+1} - \delta_{t}) - (\delta_{t} - \delta_{t-1}) \rvert \leq \bar{M} \times \max_{s<0} \lvert (\delta_{s+1} - \delta_{s}) - (\delta_{s} - \delta_{s-1}) \rvert \right\}.$$
-    The authors also propose a similar approach with what they call
-    “smoothness restrictions,” in which violations in trends changes no
-    more than $M$ between periods. The only difference is that one
-    restriction is imposed relative to observed trends, and one
-    restriction is imposed using specific values. Using the `HonestDiD`
-    package in `R` or `Stata`, present a sensitivity plot of your CS ATT
-    estimates using smoothness restrictions, with assumed violations of
-    size $M \in \left\{ 500, 1000, 1500, 2000 \right\}$. Check out the
-    GitHub repo [here](https://github.com/pedrohcgs/CS_RR) for some help
-    in combining the `HonestDiD` package with CS estimates. Note that
-    you’ll need to edit the function in that repo in order to use
-    pre-specified smoothness restrictions. You can do that by simply
-    adding `Mvec=Mvec` in the `createSensitivityResults` function for
-    `type=smoothness`.
+    parallel trends. Assuming linear trends, such a violation is
+    reflected by
+
+$$ 
+\Delta(\bar{M}) = { \delta : \forall t \geq 0, \lvert (\delta_{t+1} - \delta_{t}) - (\delta_{t} - \delta_{t-1}) \rvert \leq \bar{M} \times \max_{s<0} \lvert (\delta_{s+1} - \delta_{s}) - (\delta_{s} - \delta_{s-1}) \rvert }.
+$$
+
+Using the `HonestDiD` package in `R` or `Stata`, present a sensitivity
+plot of your CS ATT estimates using $\bar{M} = \{0, 0.5, 1, 1.5, 2\}$.
+Check out the GitHub repo [here](https://github.com/pedrohcgs/CS_RR) for
+some help in combining the `HonestDiD` package with CS estimates.
 
 ``` r
 # Install some packages
