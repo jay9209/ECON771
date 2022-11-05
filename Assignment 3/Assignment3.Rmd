@@ -1,24 +1,23 @@
 ---
 title: "Assignment3"
 author: "Jung Jae Kim"
-output:
-  html_document:
-    df_print: paged
-always_allow_html: yes
+output: pdf_document
+always_allow_html: true
 extra_dependencies:
   amsmath: null
 ---
 
 ```{r setup, include=FALSE, cache=TRUE, tidy=TRUE, echo=FALSE}
 if (!require("pacman")) install.packages("pacman")
-pacman::p_load(tidyverse, janitor, reshape2, here, haven, xtable, rdrobust, rddensity, modelsummary, kableExtra)
+pacman::p_load(formatR, tidyverse, janitor, reshape2, here, haven, xtable, rdrobust, rddensity, fixest, modelsummary, kableExtra)
 knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(fig.width=5, fig.height=3, fig.align = "center")
 ```
 
 
 ```{r import-data, include=FALSE, warning=FALSE}
-df <- read_dta('Assignment 3/data/Data_main.dta')
-df_subsidy <- read_dta('Assignment 3/data/Data_subsidyinfo.dta')
+df <- read_dta('data/Data_main.dta')
+df_subsidy <- read_dta('data/Data_subsidyinfo.dta')
 
 df_subsidy <- df_subsidy %>%
   pivot_longer(cols = c('s2006','s2007','s2008','s2009','s2010'),
@@ -41,7 +40,7 @@ df <- df %>%
 
 Questions
 
-1. Recreate the table of descriptive statistics (Table 1) from @ericson2014.
+1. Recreate the table of descriptive statistics (Table 1) from Ericson (2014).
 
 ```{r Q1, tidy=TRUE, echo=TRUE, cache=TRUE, comment=NA, warning=FALSE,include=FALSE}
 df_q1 <- df %>% 
@@ -61,25 +60,27 @@ df_q1 <- df %>%
 table1 <- df_q1 %>%
   filter(year==cohort) %>% 
   group_by(year) %>%
-  summarise('Mean monthly premium' = as.integer(mean(premium)),
-            'sd_premium' = as.integer(sd(premium)),
-            'Mean deductible' = as.integer(mean(deductible)),
-            'sd_deductible' = as.integer(sd(deductible)),
+  summarise('Mean monthly premium' = paste0("$",as.integer(mean(premium))),
+            'sd_premium' = paste0("(",as.integer(sd(premium)),")"),
+            'Mean deductible' = paste0("$",as.integer(mean(deductible))),
+            'sd_deductible' = paste0("(",as.integer(sd(deductible)),")"),
             'Fraction enhanced benefit' = round(mean(enhanced),2),
             '...in the U.S.' = round(mean(already),2),
             '...in the same state' = round(mean(already_state),2),
-            'N Unique Firms' = n_distinct(orgParentCode),
-            'N Plans' = n()) %>%
+            'Number of Unique Firms' = n_distinct(orgParentCode),
+            'Number of Plans' = n()) %>%
   t() %>%
   row_to_names(row_number=1)
+table1 <-table1 %>% kbl(booktabs = T) %>%  kable_styling(full_width=T) 
+
 ```
 ```{r Q1-display, tidy=TRUE, echo=FALSE, cache=TRUE, comment=NA, warning=FALSE}
-table1 %>% kbl() %>% kable_styling(position = "center",full_width=TRUE)
+column_spec(table1, 1, width = "5cm")
 ```
 
 
 
-2. Recreate Figure 3 from @ericson2014. 
+2. Recreate Figure 3 from Ericson (2014). 
 ```{r Q2, tidy=TRUE, echo=TRUE, cache=TRUE, comment=NA, warning=FALSE,include=FALSE}
 df_q2 <- df %>%
   filter(benefit == 'B',
@@ -109,8 +110,8 @@ figure1 <- bin.avg %>%
 ```{r Q2-display, tidy=TRUE, echo=FALSE, cache=TRUE, comment=NA, warning=FALSE}
 figure1
 ```
-
-3. @calonico2015 discuss the appropriate partition size for binned scatterplots such as that in Figure 3 of Ericson (2014). More formally, denote by $\mathcal{P}_{-,n} = \{ P_{-,j} : j=1, 2, ... J_{-, n} \}$ and $\mathcal{P}_{+,n} = \{ P_{+,j} : j=1, 2, ... J_{+, n} \}$ the partitions of the support of the running variable $x_{i}$ on the left and right (respectively) of the cutoff, $\bar{x}$. $P_{-, j}$ and $P_{+, n}$ denote the actual supports for each $j$ partition of size $J_{-,n}$ and $J_{+,n}$, such that $[x_{l}, \bar{x}) = \bigcup_{j=1}^{J_{-,n}} P_{-, j}$ and $(\bar{x}, x_{u}] = \bigcup_{j=1}^{J_{+,n}} P_{+, j}$. Individual bins are denoted by $p_{-,j}$ and $p_{+,j}$. With this notation in hand, we can write the partitions $J_{-,n}$ and $J_{+,n}$ with equally-spaced bins as $$p_{-,j}=x_{l} + j \times \frac{\bar{x} - x_{l}}{J_{-,n}},$$ and $$p_{+,j} = \bar{x} + j \times \frac{x_{u} - \bar{x}}{J_{+,n}}.$$ Recreate Figure 3 from Ericson (2014) using $J_{-,n}=J_{+,n}=10$ and $J_{-,n}=J_{+,n}=30$. Discuss your results and compare them to your figure in Part 2.
+\newpage
+3. Calonico, Cattaneo, and Titiunik (2015) discuss the appropriate partition size for binned scatterplots such as that in Figure 3 of Ericson (2014). More formally, denote by $\mathcal{P}_{-,n} = \{ P_{-,j} : j=1, 2, ... J_{-, n} \}$ and $\mathcal{P}_{+,n} = \{ P_{+,j} : j=1, 2, ... J_{+, n} \}$ the partitions of the support of the running variable $x_{i}$ on the left and right (respectively) of the cutoff, $\bar{x}$. $P_{-, j}$ and $P_{+, n}$ denote the actual supports for each $j$ partition of size $J_{-,n}$ and $J_{+,n}$, such that $[x_{l}, \bar{x}) = \bigcup_{j=1}^{J_{-,n}} P_{-, j}$ and $(\bar{x}, x_{u}] = \bigcup_{j=1}^{J_{+,n}} P_{+, j}$. Individual bins are denoted by $p_{-,j}$ and $p_{+,j}$. With this notation in hand, we can write the partitions $J_{-,n}$ and $J_{+,n}$ with equally-spaced bins as $$p_{-,j}=x_{l} + j \times \frac{\bar{x} - x_{l}}{J_{-,n}},$$ and $$p_{+,j} = \bar{x} + j \times \frac{x_{u} - \bar{x}}{J_{+,n}}.$$ Recreate Figure 3 from Ericson (2014) using $J_{-,n}=J_{+,n}=10$ and $J_{-,n}=J_{+,n}=30$. Discuss your results and compare them to your figure in Part 2.
 
 ```{r Q3, tidy=TRUE, echo=FALSE, cache=TRUE, comment=NA, warning=FALSE,include=FALSE}
 J = 10
@@ -169,7 +170,7 @@ figure2
 figure3
 ```
 
-4. With the notation above, @calonico2015 derive the optimal number of partitions for an evenly-spaced (ES) RD plot. They show that $$J_{ES,-,n} = \left\lceil \frac{V_{-}}{\mathcal{V}_{ES,-}} \frac{n}{\text{log}(n)^{2}} \right\rceil$$ and $$J_{ES,+,n} = \left\lceil \frac{V_{+}}{\mathcal{V}_{ES,+}} \frac{n}{\text{log}(n)^{2}} \right\rceil,$$ where $V_{-}$ and $V_{+}$ denote the sample variance of the subsamples to the left and right of the cutoff and $\mathcal{V}_{ES,.}$ is an integrated variance term derived in the paper. Use the `rdrobust` package in `R` (or `Stata` or `Python`) to find the optimal number of bins with an evenly-spaced binning strategy. Report this bin count and recreate your binned scatterplots from parts 2 and 3 based on the optimal bin number.
+4. With the notation above, Calonico, Cattaneo, and Titiunik (2015) derive the optimal number of partitions for an evenly-spaced (ES) RD plot. They show that $$J_{ES,-,n} = \left\lceil \frac{V_{-}}{\mathcal{V}_{ES,-}} \frac{n}{\text{log}(n)^{2}} \right\rceil$$ and $$J_{ES,+,n} = \left\lceil \frac{V_{+}}{\mathcal{V}_{ES,+}} \frac{n}{\text{log}(n)^{2}} \right\rceil,$$ where $V_{-}$ and $V_{+}$ denote the sample variance of the subsamples to the left and right of the cutoff and $\mathcal{V}_{ES,.}$ is an integrated variance term derived in the paper. Use the `rdrobust` package in `R` (or `Stata` or `Python`) to find the optimal number of bins with an evenly-spaced binning strategy. Report this bin count and recreate your binned scatterplots from parts 2 and 3 based on the optimal bin number.
 
 
 ```{r Q4, tidy=TRUE, echo=TRUE, cache=TRUE, comment=NA, warning=FALSE,include=FALSE}
@@ -202,12 +203,13 @@ figure4 <- bin.avg %>%
 
 ```
 ```{r Q4-disply, tidy=TRUE, echo=FALSE, cache=TRUE, comment=NA, warning=FALSE}
-print(paste0("Optimal bin number is: ", J))
+print(paste0("Optimal bin number is: J-=", J[1]," ", "J+=", J[2]))
 figure4
 ```
 
+\newpage
 
-5. One key underlying assumption for RD design is that agents cannot precisely manipulate the running variable. While "precisely" is not very scientific, we can at least test for whether there appears to be a discrete jump in the running variable around the threshold. Evidence of such a jump may suggest that manipulation is present. Provide the results from the manipulation tests described in @cattaneo2018. This test can be implemented with the `rddensity` package in `R`, `Stata`, or `Python`.
+5. One key underlying assumption for RD design is that agents cannot precisely manipulate the running variable. While "precisely" is not very scientific, we can at least test for whether there appears to be a discrete jump in the running variable around the threshold. Evidence of such a jump may suggest that manipulation is present. Provide the results from the manipulation tests described in Cattaneo, Jansson, and Ma (2018). This test can be implemented with the `rddensity` package in `R`, `Stata`, or `Python`.
 
 ```{r Q5, tidy=TRUE, echo=TRUE, cache=TRUE, comment=NA, warning=FALSE,include=FALSE}
 df_q5 <- df %>%
@@ -223,8 +225,9 @@ figure5 <- rdplotdensity(rdd=res, X=df_q5$LIS,
 figure5
 ```
 
+\newpage
 
-6. Recreate Panels A and B of Table 3 in @ericson2014 using the same bandwidth of $4.00 but without any covariates.
+6. Recreate Panels A and B of Table 3 in Ericson (2014) using the same bandwidth of $4.00 but without any covariates.
 
 ``` {r Q6, tidy=TRUE, echo=TRUE, cache=TRUE, comment=NA, warning=FALSE,include=FALSE}
 my_RD <- function(y_name,x_name,h,data,p=1,c=0) {
@@ -311,34 +314,98 @@ panel1
 panel2
 ```
 
-7. @calonico2020 show that pre-existing optimal bandwidth calculations (such as those used in @ericson2014) are invalid for appropriate inference. They propose an alternative method to derive minimal coverage error (CE)-optimal bandwidths. Re-estimate your RD results using the CE-optimal bandwidth (`rdrobust` will do this for you) and compare the bandwidth and RD estimates to that in Table 3 of @ericson2014.
+7. Calonico, Cattaneo, and Farrell (2020) show that pre-existing optimal bandwidth calculations (such as those used in Ericson (2014)) are invalid for appropriate inference. They propose an alternative method to derive minimal coverage error (CE)-optimal bandwidths. Re-estimate your RD results using the CE-optimal bandwidth (`rdrobust` will do this for you) and compare the bandwidth and RD estimates to that in Table 3 of Ericson(2014).
 
 ```{r cs, tidy=TRUE, echo=TRUE, cache=TRUE, comment=NA, warning=FALSE,include=FALSE}
+RDwindow2006 <- df %>%
+  filter(year==2006,
+         LIS <= 4,
+         LIS >= -4,
+         benefit=='B') %>%
+  select(uniqueID) %>% unlist()
 
+df_q7 <- df %>%
+  filter(uniqueID %in% RDwindow2006) %>%
+  group_by(uniqueID) %>%
+  mutate(L1.LIS = lag(LIS, n=1, default=NA, order_by=year),
+         L2.LIS = lag(LIS, n=2, default=NA, order_by=year),
+         L3.LIS = lag(LIS, n=3, default=NA, order_by=year),
+         L4.LIS = lag(LIS, n=4, default=NA, order_by=year)) %>%
+  ungroup()
+
+panel1 <- data.frame()
+for (y in 1:5) {
+  if (y == 1) {score <- 'LIS'}
+  else {score <- paste0('L',y-1,'.LIS')}
+  rdd <- rdrobust(y = df_q7%>%filter(year==2005+y)%>%pull(log_share),
+                  x = -1*df_q7%>%filter(year==2005+y)%>%pull(score),
+                  p=1, kernel='uniform', bwselect='cerrd')
+  coef <- round(rdd$coef[1],3)
+  se <- paste0("(",round(rdd$se[1],3),")")
+  bw = round(rdd$bws[1,1],3)
+  row <- data.frame(coef, se, bw)
+  panel1 <- rbind(panel1,row)
+}
+rownames(panel1) <- c(2006:2010)
+panel1 <- panel1 %>% t()
+
+panel2 <- data.frame()
+for (y in 1:5) {
+  if (y == 1) {score <- 'LIS'}
+  else {score <- paste0('L',y-1,'.LIS')}
+  rdd <- rdrobust(y = df_q7%>%filter(year==2005+y)%>%pull(log_share),
+                  x = -1*df_q7%>%filter(year==2005+y)%>%pull(score),
+                  p=2, kernel='uniform', bwselect='cerrd')
+  coef <- round(rdd$coef[1],3)
+  se <- paste0("(",round(rdd$se[1],3),")")
+  bw = round(rdd$bws[1,1],3)
+  row <- data.frame(coef, se, bw)
+  panel2 <- rbind(panel2,row)
+}
+rownames(panel2) <- c(2006:2010)
+panel2 <- panel2 %>% t()
 
 ```
 ```{r cs-display, tidy=TRUE, echo=FALSE, cache=TRUE, comment=NA, warning=FALSE}
-
+panel1 %>% kbl(booktabs = T) %>%  kable_styling(full_width=T) 
+panel2 %>% kbl(booktabs = T) %>%  kable_styling(full_width=T) 
 ```
 
-8. Now let's extend the analysis in Section V of @ericson2014 using IV. Use the presence of Part D low-income subsidy as an IV for market share to examine the effect of market share in 2006 on future premium changes. 
+\newpage
+
+8. Now let's extend the analysis in Section V of Ericson(2014) using IV. Use the presence of Part D low-income subsidy as an IV for market share to examine the effect of market share in 2006 on future premium changes. 
 
 
 ```{r Aux-func-RR, tidy=TRUE, echo=TRUE, cache=TRUE, comment=NA, include=FALSE, warning=FALSE}
+df_q8 <- df %>%
+  filter(uniqueID %in% RDwindow2006) %>%
+  mutate(log_premium = log(premium))
 
+share2006 <- df %>%
+  filter(uniqueID %in% RDwindow2006,
+         year==2006) %>%
+  select(uniqueID, share) %>%
+  rename(share2006 = share)
+
+df_q8 <- df_q8 %>% left_join(share2006, by='uniqueID') %>% 
+  mutate(log_share = log(share2006))
+
+ivmodel <- feols(log_premium ~ 1 | state+year | log_share~LIS,
+            data=df_q8)
 ```
 
 
 ```{r honest-display, tidy=TRUE, echo=FALSE, cache=TRUE, comment=NA, warning=FALSE}
-
+etable(ivmodel) %>% kbl(booktabs = T) %>%  kable_styling(full_width=T) 
 ```
 
 
 
-9. Discuss your findings and compare results from different binwidths and bandwidths. Compare your results in part 8 to the invest-then-harvest estimates from Table 4 in @ericson2014.
+9. Discuss your findings and compare results from different binwidths and bandwidths. Compare your results in part 8 to the invest-then-harvest estimates from Table 4 in Ericson(2014).
 
-Answers: 
+Answers: Different binwidths and bandwidths give similar results. 
+
 
 10. Reflect on this assignment. What did you find most challenging? What did you find most surprising? 
 
-Answers: 
+Answers:  Replicating and doing robustness checks in RD design was helpful to better understand and implement RD using R.
